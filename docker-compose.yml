@@ -1,0 +1,177 @@
+name: mailu-coolify
+
+x-mailu-env: &mailu-env
+  VERSION: "${MAILU_VERSION:-2024.06}"
+  SECRET_KEY: "${SECRET_KEY:?Defina uma chave aleatoria com pelo menos 16 bytes}"
+  DOMAIN: "${MAIL_DOMAIN:?Defina o dominio principal, exemplo: example.com}"
+  HOSTNAMES: "${MAIL_HOSTNAMES:?Defina o hostname publico, exemplo: mail.example.com}"
+  POSTMASTER: "${POSTMASTER:-postmaster}"
+  SUBNET: "${MAILU_SUBNET:-192.168.203.0/24}"
+  TLS_FLAVOR: "${TLS_FLAVOR:-cert}"
+  WEBMAIL: "${WEBMAIL:-roundcube}"
+  WEB_ADMIN: "${WEB_ADMIN:-/admin}"
+  WEB_WEBMAIL: "${WEB_WEBMAIL:-/webmail}"
+  WEB_API: "${WEB_API:-/api}"
+  WEBROOT_REDIRECT: "${WEBROOT_REDIRECT:-/webmail}"
+  SITENAME: "${SITENAME:-Mail}"
+  WEBSITE: "${WEBSITE:-}"
+  INITIAL_ADMIN_ACCOUNT: "${INITIAL_ADMIN_ACCOUNT:?Defina o usuario admin sem @}"
+  INITIAL_ADMIN_DOMAIN: "${INITIAL_ADMIN_DOMAIN:?Defina o dominio do admin}"
+  INITIAL_ADMIN_PW: "${INITIAL_ADMIN_PW:?Defina uma senha forte para o admin inicial}"
+  INITIAL_ADMIN_MODE: "${INITIAL_ADMIN_MODE:-ifmissing}"
+  AUTH_RATELIMIT_IP: "${AUTH_RATELIMIT_IP:-5/hour}"
+  AUTH_RATELIMIT_USER: "${AUTH_RATELIMIT_USER:-50/day}"
+  MESSAGE_SIZE_LIMIT: "${MESSAGE_SIZE_LIMIT:-50000000}"
+  MESSAGE_RATELIMIT: "${MESSAGE_RATELIMIT:-200/day}"
+  DEFAULT_QUOTA: "${DEFAULT_QUOTA:-1073741824}"
+  DEFAULT_SPAM_THRESHOLD: "${DEFAULT_SPAM_THRESHOLD:-80}"
+  RECIPIENT_DELIMITER: "${RECIPIENT_DELIMITER:-+-}"
+  FETCHMAIL_ENABLED: "${FETCHMAIL_ENABLED:-True}"
+  FETCHMAIL_DELAY: "${FETCHMAIL_DELAY:-600}"
+  LOG_LEVEL: "${LOG_LEVEL:-WARNING}"
+  ANTIVIRUS: "${ANTIVIRUS:-clamav}"
+  WEBDAV: "${WEBDAV:-none}"
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+  front:
+    image: mailu/nginx:${MAILU_VERSION:-2024.06}
+    restart: unless-stopped
+    environment: *mailu-env
+    logging: *default-logging
+    ports:
+      - "${BIND_ADDRESS4:-0.0.0.0}:25:25"
+      - "${BIND_ADDRESS4:-0.0.0.0}:465:465"
+      - "${BIND_ADDRESS4:-0.0.0.0}:587:587"
+      - "${BIND_ADDRESS4:-0.0.0.0}:110:110"
+      - "${BIND_ADDRESS4:-0.0.0.0}:143:143"
+      - "${BIND_ADDRESS4:-0.0.0.0}:993:993"
+      - "${BIND_ADDRESS4:-0.0.0.0}:995:995"
+    expose:
+      - "80"
+    volumes:
+      - ./data/certs:/certs
+      - ./data/overrides/nginx:/overrides:ro
+    depends_on:
+      - resolver
+    dns:
+      - ${RESOLVER_IPV4:-192.168.203.254}
+
+  resolver:
+    image: mailu/unbound:${MAILU_VERSION:-2024.06}
+    restart: unless-stopped
+    environment: *mailu-env
+    logging: *default-logging
+    networks:
+      default:
+        ipv4_address: ${RESOLVER_IPV4:-192.168.203.254}
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    logging: *default-logging
+    volumes:
+      - ./data/redis:/data
+
+  admin:
+    image: mailu/admin:${MAILU_VERSION:-2024.06}
+    restart: unless-stopped
+    environment: *mailu-env
+    logging: *default-logging
+    volumes:
+      - ./data/admin:/data
+      - ./data/dkim:/dkim
+    depends_on:
+      - redis
+    dns:
+      - ${RESOLVER_IPV4:-192.168.203.254}
+
+  imap:
+    image: mailu/dovecot:${MAILU_VERSION:-2024.06}
+    restart: unless-stopped
+    environment: *mailu-env
+    logging: *default-logging
+    volumes:
+      - ./data/mail:/mail
+      - ./data/overrides/dovecot:/overrides:ro
+    depends_on:
+      - front
+    dns:
+      - ${RESOLVER_IPV4:-192.168.203.254}
+
+  smtp:
+    image: mailu/postfix:${MAILU_VERSION:-2024.06}
+    restart: unless-stopped
+    environment: *mailu-env
+    logging: *default-logging
+    volumes:
+      - ./data/mailqueue:/queue
+      - ./data/overrides/postfix:/overrides:ro
+    depends_on:
+      - front
+    dns:
+      - ${RESOLVER_IPV4:-192.168.203.254}
+
+  antispam:
+    image: mailu/rspamd:${MAILU_VERSION:-2024.06}
+    restart: unless-stopped
+    environment: *mailu-env
+    logging: *default-logging
+    volumes:
+      - ./data/filter:/var/lib/rspamd
+      - ./data/dkim:/dkim:ro
+      - ./data/overrides/rspamd:/etc/rspamd/override.d:ro
+    depends_on:
+      - front
+      - redis
+    dns:
+      - ${RESOLVER_IPV4:-192.168.203.254}
+
+  antivirus:
+    image: mailu/clamav:${MAILU_VERSION:-2024.06}
+    restart: unless-stopped
+    environment: *mailu-env
+    logging: *default-logging
+    volumes:
+      - ./data/filter:/data
+    dns:
+      - ${RESOLVER_IPV4:-192.168.203.254}
+
+  webmail:
+    image: mailu/roundcube:${MAILU_VERSION:-2024.06}
+    restart: unless-stopped
+    environment: *mailu-env
+    logging: *default-logging
+    volumes:
+      - ./data/webmail:/data
+      - ./data/overrides/roundcube:/overrides:ro
+    depends_on:
+      - imap
+    dns:
+      - ${RESOLVER_IPV4:-192.168.203.254}
+
+  fetchmail:
+    image: mailu/fetchmail:${MAILU_VERSION:-2024.06}
+    restart: unless-stopped
+    environment: *mailu-env
+    logging: *default-logging
+    depends_on:
+      - admin
+      - smtp
+      - imap
+    dns:
+      - ${RESOLVER_IPV4:-192.168.203.254}
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: ${MAILU_SUBNET:-192.168.203.0/24}
