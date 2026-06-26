@@ -29,6 +29,12 @@ Criar um projeto para subir um servico de e-mail em uma VPS com Coolify, incluin
 - `docker-compose --env-file .env.example config`: compose validado com sucesso.
 - Observacao: o Docker local exibiu aviso `Error loading config file: open C:\Users\acamb\.docker\config.json: Access is denied`, mas o comando retornou codigo 0 e gerou a configuracao normalizada.
 
+## Atualizacao em 2026-06-25
+
+- Renomeados os servicos do `docker-compose.yml` com sufixo `-mail` para evitar conflito com outros servicos no mesmo ambiente.
+- Nomes atuais: `front-mail`, `resolver-mail`, `redis-mail`, `admin-mail`, `imap-mail`, `smtp-mail`, `antispam-mail`, `antivirus-mail`, `webmail-mail`, `fetchmail-mail`.
+- Adicionadas variaveis `*_ADDRESS` no Compose e em `.env.example` para que os containers Mailu descubram os novos nomes DNS internos.
+
 ## Pendencias para deploy real
 
 - Definir dominio final.

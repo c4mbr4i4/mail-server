@@ -31,6 +31,14 @@ x-mailu-env: &mailu-env
   LOG_LEVEL: "${LOG_LEVEL:-WARNING}"
   ANTIVIRUS: "${ANTIVIRUS:-clamav}"
   WEBDAV: "${WEBDAV:-none}"
+  ADMIN_ADDRESS: "${ADMIN_ADDRESS:-admin-mail}"
+  ANTISPAM_ADDRESS: "${ANTISPAM_ADDRESS:-antispam-mail}"
+  ANTIVIRUS_ADDRESS: "${ANTIVIRUS_ADDRESS:-antivirus-mail}"
+  FRONT_ADDRESS: "${FRONT_ADDRESS:-front-mail}"
+  IMAP_ADDRESS: "${IMAP_ADDRESS:-imap-mail}"
+  REDIS_ADDRESS: "${REDIS_ADDRESS:-redis-mail}"
+  SMTP_ADDRESS: "${SMTP_ADDRESS:-smtp-mail}"
+  WEBMAIL_ADDRESS: "${WEBMAIL_ADDRESS:-webmail-mail}"
 
 x-logging: &default-logging
   driver: json-file
@@ -39,7 +47,7 @@ x-logging: &default-logging
     max-file: "5"
 
 services:
-  front:
+  front-mail:
     image: mailu/nginx:${MAILU_VERSION:-2024.06}
     restart: unless-stopped
     environment: *mailu-env
@@ -58,11 +66,11 @@ services:
       - ./data/certs:/certs
       - ./data/overrides/nginx:/overrides:ro
     depends_on:
-      - resolver
+      - resolver-mail
     dns:
       - ${RESOLVER_IPV4:-192.168.203.254}
 
-  resolver:
+  resolver-mail:
     image: mailu/unbound:${MAILU_VERSION:-2024.06}
     restart: unless-stopped
     environment: *mailu-env
@@ -71,7 +79,7 @@ services:
       default:
         ipv4_address: ${RESOLVER_IPV4:-192.168.203.254}
 
-  redis:
+  redis-mail:
     image: redis:7-alpine
     restart: unless-stopped
     command: redis-server --appendonly yes
@@ -79,7 +87,7 @@ services:
     volumes:
       - ./data/redis:/data
 
-  admin:
+  admin-mail:
     image: mailu/admin:${MAILU_VERSION:-2024.06}
     restart: unless-stopped
     environment: *mailu-env
@@ -88,11 +96,11 @@ services:
       - ./data/admin:/data
       - ./data/dkim:/dkim
     depends_on:
-      - redis
+      - redis-mail
     dns:
       - ${RESOLVER_IPV4:-192.168.203.254}
 
-  imap:
+  imap-mail:
     image: mailu/dovecot:${MAILU_VERSION:-2024.06}
     restart: unless-stopped
     environment: *mailu-env
@@ -101,11 +109,11 @@ services:
       - ./data/mail:/mail
       - ./data/overrides/dovecot:/overrides:ro
     depends_on:
-      - front
+      - front-mail
     dns:
       - ${RESOLVER_IPV4:-192.168.203.254}
 
-  smtp:
+  smtp-mail:
     image: mailu/postfix:${MAILU_VERSION:-2024.06}
     restart: unless-stopped
     environment: *mailu-env
@@ -114,11 +122,11 @@ services:
       - ./data/mailqueue:/queue
       - ./data/overrides/postfix:/overrides:ro
     depends_on:
-      - front
+      - front-mail
     dns:
       - ${RESOLVER_IPV4:-192.168.203.254}
 
-  antispam:
+  antispam-mail:
     image: mailu/rspamd:${MAILU_VERSION:-2024.06}
     restart: unless-stopped
     environment: *mailu-env
@@ -128,12 +136,12 @@ services:
       - ./data/dkim:/dkim:ro
       - ./data/overrides/rspamd:/etc/rspamd/override.d:ro
     depends_on:
-      - front
-      - redis
+      - front-mail
+      - redis-mail
     dns:
       - ${RESOLVER_IPV4:-192.168.203.254}
 
-  antivirus:
+  antivirus-mail:
     image: mailu/clamav:${MAILU_VERSION:-2024.06}
     restart: unless-stopped
     environment: *mailu-env
@@ -143,7 +151,7 @@ services:
     dns:
       - ${RESOLVER_IPV4:-192.168.203.254}
 
-  webmail:
+  webmail-mail:
     image: mailu/roundcube:${MAILU_VERSION:-2024.06}
     restart: unless-stopped
     environment: *mailu-env
@@ -152,19 +160,19 @@ services:
       - ./data/webmail:/data
       - ./data/overrides/roundcube:/overrides:ro
     depends_on:
-      - imap
+      - imap-mail
     dns:
       - ${RESOLVER_IPV4:-192.168.203.254}
 
-  fetchmail:
+  fetchmail-mail:
     image: mailu/fetchmail:${MAILU_VERSION:-2024.06}
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
     depends_on:
-      - admin
-      - smtp
-      - imap
+      - admin-mail
+      - smtp-mail
+      - imap-mail
     dns:
       - ${RESOLVER_IPV4:-192.168.203.254}
 

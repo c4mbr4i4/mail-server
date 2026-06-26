@@ -35,14 +35,14 @@ Portas publicas expostas diretamente no host:
 - `993`: IMAPS.
 - `995`: POP3S.
 
-A interface web roda no container `front` na porta interna `80` e deve ser publicada pelo dominio configurado no Coolify, por exemplo `https://mail.seudominio.com`.
+A interface web roda no container `front-mail` na porta interna `80` e deve ser publicada pelo dominio configurado no Coolify, por exemplo `https://mail.seudominio.com`.
 
 ## Passo a passo no Coolify
 
 1. Crie um novo projeto no Coolify.
 2. Crie uma nova aplicacao a partir deste repositorio Git.
 3. Selecione o build/deploy pack `Docker Compose`.
-4. Se o Coolify oferecer `Raw Compose Deployment`, pode usar tambem. Para este caso, mantenha o servico `front` associado ao dominio HTTP.
+4. Se o Coolify oferecer `Raw Compose Deployment`, pode usar tambem. Para este caso, mantenha o servico `front-mail` associado ao dominio HTTP.
 5. Configure o dominio do servico `front` como `https://mail.seudominio.com`.
 6. Na tela de variaveis de ambiente, preencha todas as variaveis obrigatorias:
    - `MAIL_DOMAIN=seudominio.com`
@@ -103,7 +103,7 @@ No servidor:
 
 ```bash
 docker compose ps
-docker compose logs -f front smtp imap admin
+docker compose logs -f front-mail smtp-mail imap-mail admin-mail
 ```
 
 De fora da VPS:
