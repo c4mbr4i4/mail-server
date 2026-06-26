@@ -38,7 +38,7 @@ Portas publicas expostas diretamente no host:
 A interface web roda no container `front-mail` na porta interna `80` e deve ser publicada pelo dominio configurado no Coolify, por exemplo `https://mail.seudominio.com`.
 
 No Coolify, mantenha `PORTS=25,80,443,110,995,143,993,587,465,4190` para que o Mailu habilite os listeners internos correspondentes. Tambem mantenha `ADMIN=true` para publicar o painel em `/admin`.
-O `front-mail` tambem e conectado a rede externa do proxy do Coolify. Por padrao o compose usa `COOLIFY_PROXY_NETWORK=coolify`; ajuste essa variavel se sua rede do proxy tiver outro nome.
+Como o `front-mail` publica varias portas de e-mail, informe explicitamente a porta interna HTTP no dominio do Coolify: `https://mail.seudominio.com:80`.
 
 ## Passo a passo no Coolify
 
@@ -46,7 +46,7 @@ O `front-mail` tambem e conectado a rede externa do proxy do Coolify. Por padrao
 2. Crie uma nova aplicacao a partir deste repositorio Git.
 3. Selecione o build/deploy pack `Docker Compose`.
 4. Se o Coolify oferecer `Raw Compose Deployment`, pode usar tambem. Para este caso, mantenha o servico `front-mail` associado ao dominio HTTP.
-5. Configure o dominio do servico `front-mail` como `https://mail.seudominio.com`.
+5. Configure o dominio do servico `front-mail` como `https://mail.seudominio.com:80`. O `:80` informa ao Coolify a porta interna HTTP do container; o acesso publico continua em `https://mail.seudominio.com`.
 6. Na tela de variaveis de ambiente, preencha todas as variaveis obrigatorias:
    - `MAIL_DOMAIN=seudominio.com`
    - `MAIL_HOSTNAMES=mail.seudominio.com`

@@ -77,7 +77,6 @@ services:
       - resolver-mail
     networks:
       - default
-      - coolify
 
   resolver-mail:
     image: ghcr.io/mailu/unbound:${MAILU_VERSION:-2024.06}
@@ -218,6 +217,3 @@ networks:
         - subnet: ${MAILU_SUBNET:-192.168.203.0/24}
   clamav:
     driver: bridge
-  coolify:
-    external: true
-    name: ${COOLIFY_PROXY_NETWORK:-coolify}

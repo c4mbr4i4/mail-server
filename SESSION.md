@@ -63,8 +63,9 @@ Criar um projeto para subir um servico de e-mail em uma VPS com Coolify, incluin
 ## Correcao proxy Coolify em 2026-06-26
 
 - Admin respondeu internamente em `admin-mail:8080`, mas `https://mail.dominus-ai.net.br/admin` retornou Gateway Timeout.
-- Diagnostico: proxy do Coolify nao alcancava `front-mail` na rede HTTP.
-- Adicionada rede externa `coolify` com nome configuravel por `COOLIFY_PROXY_NETWORK`, conectada apenas ao `front-mail`.
+- Diagnostico revisado: como o `front-mail` publica varias portas, o Coolify pode inferir a porta HTTP errada se o dominio nao indicar a porta interna.
+- Removida rede externa `coolify`; a documentacao do Coolify informa que o proxy e adicionado a rede da stack.
+- O dominio do servico `front-mail` deve ser configurado como `https://mail.dominus-ai.net.br:80` para rotear para a porta interna HTTP correta.
 
 ## Pendencias para deploy real
 
