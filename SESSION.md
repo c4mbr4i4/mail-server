@@ -73,6 +73,12 @@ Criar um projeto para subir um servico de e-mail em uma VPS com Coolify, incluin
 - Causa: `TLS_FLAVOR=cert` faz o Mailu redirecionar HTTP interno para HTTPS, mas o Coolify ja termina HTTPS e encaminha HTTP para `front-mail:80`.
 - Alterado default para `TLS_FLAVOR=mail`, mantendo TLS nos protocolos SMTP/IMAP com certificados em `/certs` e deixando a web em HTTP interno atras do proxy do Coolify.
 
+## Ajuste SSO webmail em 2026-06-26
+
+- Webmail reportado em loop de redirect no navegador, embora `curl -IL` chegue ao login SSO com HTTP 200.
+- Adicionados defaults `REAL_IP_HEADER=X-Forwarded-For` e `REAL_IP_FROM=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16`, conforme recomendacao do Mailu para uso atras de reverse proxy.
+- Orientacao operacional: somente `front-mail` deve ter dominio publico no Coolify; `webmail-mail` e `admin-mail` devem ficar internos.
+
 ## Pendencias para deploy real
 
 - Definir dominio final.

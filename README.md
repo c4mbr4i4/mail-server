@@ -57,11 +57,12 @@ Como o `front-mail` publica varias portas de e-mail, informe explicitamente a po
    - `ADMIN=true`
    - `API=false`
 7. Mantenha `TLS_FLAVOR=mail` em VPS com Coolify. Assim a web usa HTTP interno atras do proxy do Coolify, enquanto SMTP/IMAP continuam usando os certificados em `./data/certs`.
-8. Antes do primeiro deploy, coloque os certificados TLS em:
+8. Mantenha `REAL_IP_HEADER=X-Forwarded-For` e `REAL_IP_FROM=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16` para o Mailu confiar nos headers do proxy do Coolify.
+9. Antes do primeiro deploy, coloque os certificados TLS em:
    - `./data/certs/cert.pem`
    - `./data/certs/key.pem`
-9. Faca o deploy.
-10. Acesse:
+10. Faca o deploy.
+11. Acesse:
    - Admin: `https://mail.seudominio.com/admin`
    - Webmail: `https://mail.seudominio.com/webmail`
 
@@ -121,6 +122,8 @@ openssl s_client -starttls smtp -connect mail.seudominio.com:587 -servername mai
 Valide reputacao e DNS em ferramentas publicas como MXToolbox, Mail Tester ou equivalente.
 
 Se o admin mostrar erro de DNS em `127.0.0.11`, confirme no Coolify que o deploy esta usando o compose atualizado. O Mailu precisa usar o resolver interno `resolver-mail` no IP de `RESOLVER_IPV4`, pois versoes recentes exigem DNSSEC.
+
+Se o webmail ficar voltando para login, confirme que somente o servico `front-mail` tem dominio publico no Coolify. `admin-mail`, `webmail-mail` e os demais servicos nao devem ter dominio proprio. Limpe tambem cookies do dominio apos alterar `TLS_FLAVOR` ou parametros de proxy.
 
 ## Operacao e backup
 

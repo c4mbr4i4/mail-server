@@ -16,6 +16,8 @@ x-mailu-env: &mailu-env
   WEB_WEBMAIL: "${WEB_WEBMAIL:-/webmail}"
   WEB_API: "${WEB_API:-/api}"
   WEBROOT_REDIRECT: "${WEBROOT_REDIRECT:-/webmail}"
+  REAL_IP_HEADER: "${REAL_IP_HEADER:-X-Forwarded-For}"
+  REAL_IP_FROM: "${REAL_IP_FROM:-10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}"
   SITENAME: "${SITENAME:-Mail}"
   WEBSITE: "${WEBSITE:-}"
   INITIAL_ADMIN_ACCOUNT: "${INITIAL_ADMIN_ACCOUNT:?Defina o usuario admin sem @}"
