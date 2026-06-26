@@ -46,9 +46,14 @@ x-logging: &default-logging
     max-size: "10m"
     max-file: "5"
 
+x-mailu-dns: &mailu-dns
+  dns:
+    - "${RESOLVER_IPV4:-192.168.203.254}"
+
 services:
   front-mail:
     image: ghcr.io/mailu/nginx:${MAILU_VERSION:-2024.06}
+    <<: *mailu-dns
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
@@ -67,8 +72,8 @@ services:
       - ./data/overrides/nginx:/overrides:ro
     depends_on:
       - resolver-mail
-    dns:
-      - ${RESOLVER_IPV4:-192.168.203.254}
+    networks:
+      - default
 
   resolver-mail:
     image: ghcr.io/mailu/unbound:${MAILU_VERSION:-2024.06}
@@ -89,6 +94,7 @@ services:
 
   admin-mail:
     image: ghcr.io/mailu/admin:${MAILU_VERSION:-2024.06}
+    <<: *mailu-dns
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
@@ -96,12 +102,14 @@ services:
       - ./data/admin:/data
       - ./data/dkim:/dkim
     depends_on:
+      - resolver-mail
       - redis-mail
-    dns:
-      - ${RESOLVER_IPV4:-192.168.203.254}
+    networks:
+      - default
 
   imap-mail:
     image: ghcr.io/mailu/dovecot:${MAILU_VERSION:-2024.06}
+    <<: *mailu-dns
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
@@ -109,12 +117,14 @@ services:
       - ./data/mail:/mail
       - ./data/overrides/dovecot:/overrides:ro
     depends_on:
+      - resolver-mail
       - front-mail
-    dns:
-      - ${RESOLVER_IPV4:-192.168.203.254}
+    networks:
+      - default
 
   smtp-mail:
     image: ghcr.io/mailu/postfix:${MAILU_VERSION:-2024.06}
+    <<: *mailu-dns
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
@@ -122,12 +132,14 @@ services:
       - ./data/mailqueue:/queue
       - ./data/overrides/postfix:/overrides:ro
     depends_on:
+      - resolver-mail
       - front-mail
-    dns:
-      - ${RESOLVER_IPV4:-192.168.203.254}
+    networks:
+      - default
 
   antispam-mail:
     image: ghcr.io/mailu/rspamd:${MAILU_VERSION:-2024.06}
+    <<: *mailu-dns
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
@@ -136,14 +148,17 @@ services:
       - ./data/dkim:/dkim:ro
       - ./data/overrides/rspamd:/etc/rspamd/override.d:ro
     depends_on:
+      - resolver-mail
       - front-mail
       - redis-mail
       - antivirus-mail
-    dns:
-      - ${RESOLVER_IPV4:-192.168.203.254}
+    networks:
+      - default
+      - clamav
 
   antivirus-mail:
     image: clamav/clamav-debian:1.4
+    <<: *mailu-dns
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
@@ -155,11 +170,15 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
-    dns:
-      - ${RESOLVER_IPV4:-192.168.203.254}
+    depends_on:
+      - resolver-mail
+    networks:
+      - default
+      - clamav
 
   webmail-mail:
     image: ghcr.io/mailu/webmail:${MAILU_VERSION:-2024.06}
+    <<: *mailu-dns
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
@@ -167,21 +186,24 @@ services:
       - ./data/webmail:/data
       - ./data/overrides/roundcube:/overrides:ro
     depends_on:
+      - resolver-mail
       - imap-mail
-    dns:
-      - ${RESOLVER_IPV4:-192.168.203.254}
+    networks:
+      - default
 
   fetchmail-mail:
     image: ghcr.io/mailu/fetchmail:${MAILU_VERSION:-2024.06}
+    <<: *mailu-dns
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
     depends_on:
+      - resolver-mail
       - admin-mail
       - smtp-mail
       - imap-mail
-    dns:
-      - ${RESOLVER_IPV4:-192.168.203.254}
+    networks:
+      - default
 
 networks:
   default:
@@ -190,3 +212,5 @@ networks:
       driver: default
       config:
         - subnet: ${MAILU_SUBNET:-192.168.203.0/24}
+  clamav:
+    driver: bridge

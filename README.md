@@ -115,6 +115,8 @@ openssl s_client -starttls smtp -connect mail.seudominio.com:587 -servername mai
 
 Valide reputacao e DNS em ferramentas publicas como MXToolbox, Mail Tester ou equivalente.
 
+Se o admin mostrar erro de DNS em `127.0.0.11`, confirme no Coolify que o deploy esta usando o compose atualizado. O Mailu precisa usar o resolver interno `resolver-mail` no IP de `RESOLVER_IPV4`, pois versoes recentes exigem DNSSEC.
+
 ## Operacao e backup
 
 Faca backup de todo o diretorio `./data`, principalmente:

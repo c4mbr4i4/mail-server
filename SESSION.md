@@ -43,6 +43,13 @@ Criar um projeto para subir um servico de e-mail em uma VPS com Coolify, incluin
 - Ajustado antivirus para `clamav/clamav-debian:1.4`, conforme template oficial Mailu 2024.06.
 - Volume do antivirus alterado para `./data/clamav:/var/lib/clamav`.
 
+## Correcao DNS em 2026-06-25
+
+- Erro reportado: admin tentando usar DNS `127.0.0.11` e antivirus sem resolver `database.clamav.net`.
+- Criado anchor `x-mailu-dns` para aplicar `RESOLVER_IPV4` em todos os servicos que precisam resolver nomes externos.
+- Adicionado `resolver-mail` em `depends_on` desses servicos.
+- Adicionada rede `clamav` e conectados `antispam-mail` e `antivirus-mail`, mantendo ambos tambem na rede `default` para acessar o resolver interno.
+
 ## Pendencias para deploy real
 
 - Definir dominio final.
