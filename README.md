@@ -125,6 +125,15 @@ Se o admin mostrar erro de DNS em `127.0.0.11`, confirme no Coolify que o deploy
 
 Se o webmail ficar voltando para login, confirme que somente o servico `front-mail` tem dominio publico no Coolify. `admin-mail`, `webmail-mail` e os demais servicos nao devem ter dominio proprio. Limpe tambem cookies do dominio apos alterar `TLS_FLAVOR` ou parametros de proxy.
 
+Se os logs do `front-mail` mostrarem `imap-login ... AUTHENTICATIONFAILED` durante o acesso ao webmail, o problema e autenticacao IMAP do usuario, nao redirect. Isso costuma acontecer quando `INITIAL_ADMIN_PW` foi alterada depois da primeira criacao do usuario, pois `INITIAL_ADMIN_MODE=ifmissing` nao atualiza usuarios existentes. Redefina a senha no painel admin ou via CLI:
+
+```bash
+ADMIN=$(docker ps --format '{{.Names}}' | grep admin-mail | head -n 1)
+docker exec "$ADMIN" flask mailu password admin dominus-ai.net.br 'NOVA_SENHA_FORTE'
+```
+
+Para usuarios finais, prefira criar caixas postais proprias no painel admin e acessar o webmail com `usuario@seudominio.com`.
+
 ## Operacao e backup
 
 Faca backup de todo o diretorio `./data`, principalmente:

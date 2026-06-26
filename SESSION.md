@@ -79,6 +79,13 @@ Criar um projeto para subir um servico de e-mail em uma VPS com Coolify, incluin
 - Adicionados defaults `REAL_IP_HEADER=X-Forwarded-For` e `REAL_IP_FROM=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16`, conforme recomendacao do Mailu para uso atras de reverse proxy.
 - Orientacao operacional: somente `front-mail` deve ter dominio publico no Coolify; `webmail-mail` e `admin-mail` devem ficar internos.
 
+## Diagnostico auth webmail em 2026-06-26
+
+- Logs mostraram loop em `/webmail/sso.php` junto de `imap-login ... AUTHENTICATIONFAILED` para `admin@dominus-ai.net.br`.
+- Conclusao: o Roundcube/SSO esta acessivel, mas o login IMAP do usuario falha.
+- Causa provavel: `INITIAL_ADMIN_MODE=ifmissing` nao atualiza senha de usuario ja existente; se `INITIAL_ADMIN_PW` mudou apos o primeiro deploy, a senha real do usuario permanece a antiga.
+- Correcao: redefinir a senha do usuario no painel admin ou executar `flask mailu password admin dominus-ai.net.br 'NOVA_SENHA_FORTE'` no container `admin-mail`.
+
 ## Pendencias para deploy real
 
 - Definir dominio final.
