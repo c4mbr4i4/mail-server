@@ -38,6 +38,7 @@ Portas publicas expostas diretamente no host:
 A interface web roda no container `front-mail` na porta interna `80` e deve ser publicada pelo dominio configurado no Coolify, por exemplo `https://mail.seudominio.com`.
 
 No Coolify, mantenha `PORTS=25,80,443,110,995,143,993,587,465,4190` para que o Mailu habilite os listeners internos correspondentes. Tambem mantenha `ADMIN=true` para publicar o painel em `/admin`.
+O `front-mail` tambem e conectado a rede externa do proxy do Coolify. Por padrao o compose usa `COOLIFY_PROXY_NETWORK=coolify`; ajuste essa variavel se sua rede do proxy tiver outro nome.
 
 ## Passo a passo no Coolify
 

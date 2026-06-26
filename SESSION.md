@@ -60,6 +60,12 @@ Criar um projeto para subir um servico de e-mail em uma VPS com Coolify, incluin
 - Adicionados defaults `ADMIN=true` e `API=false` no compose e no `.env.example`.
 - O painel admin deve ser acessado via `front-mail` em `/admin`; `admin-mail` continua sem dominio publico.
 
+## Correcao proxy Coolify em 2026-06-26
+
+- Admin respondeu internamente em `admin-mail:8080`, mas `https://mail.dominus-ai.net.br/admin` retornou Gateway Timeout.
+- Diagnostico: proxy do Coolify nao alcancava `front-mail` na rede HTTP.
+- Adicionada rede externa `coolify` com nome configuravel por `COOLIFY_PROXY_NETWORK`, conectada apenas ao `front-mail`.
+
 ## Pendencias para deploy real
 
 - Definir dominio final.
