@@ -56,7 +56,7 @@ Como o `front-mail` publica varias portas de e-mail, informe explicitamente a po
    - `SECRET_KEY=<chave aleatoria forte>`
    - `ADMIN=true`
    - `API=false`
-7. Mantenha `TLS_FLAVOR=cert` em VPS com Coolify, porque o proxy do Coolify normalmente ja ocupa as portas 80/443 do host.
+7. Mantenha `TLS_FLAVOR=mail` em VPS com Coolify. Assim a web usa HTTP interno atras do proxy do Coolify, enquanto SMTP/IMAP continuam usando os certificados em `./data/certs`.
 8. Antes do primeiro deploy, coloque os certificados TLS em:
    - `./data/certs/cert.pem`
    - `./data/certs/key.pem`
@@ -67,7 +67,7 @@ Como o `front-mail` publica varias portas de e-mail, informe explicitamente a po
 
 ## Certificados TLS
 
-Como o Coolify normalmente controla `80/443`, o Mailu nao deve tentar emitir certificado por HTTP-01 dentro da stack. Use uma destas opcoes:
+Como o Coolify normalmente controla `80/443`, o Mailu nao deve tentar emitir certificado por HTTP-01 dentro da stack nem forcar HTTPS no proxy interno. Use `TLS_FLAVOR=mail` e uma destas opcoes:
 
 - Recomendado: emitir certificado fora da stack com `acme.sh` ou `certbot` via DNS-01 e copiar/renovar `cert.pem` e `key.pem` em `./data/certs`.
 - Alternativa: se a VPS nao usar o proxy do Coolify em `80/443`, adapte o compose para expor `80:80` e `443:443` e use `TLS_FLAVOR=letsencrypt`.

@@ -67,6 +67,12 @@ Criar um projeto para subir um servico de e-mail em uma VPS com Coolify, incluin
 - Removida rede externa `coolify`; a documentacao do Coolify informa que o proxy e adicionado a rede da stack.
 - O dominio do servico `front-mail` deve ser configurado como `https://mail.dominus-ai.net.br:80` para rotear para a porta interna HTTP correta.
 
+## Correcao loop HTTPS em 2026-06-26
+
+- `curl -IL` em `/admin/` e `/webmail/` retornou loop 301 para a mesma URL HTTPS.
+- Causa: `TLS_FLAVOR=cert` faz o Mailu redirecionar HTTP interno para HTTPS, mas o Coolify ja termina HTTPS e encaminha HTTP para `front-mail:80`.
+- Alterado default para `TLS_FLAVOR=mail`, mantendo TLS nos protocolos SMTP/IMAP com certificados em `/certs` e deixando a web em HTTP interno atras do proxy do Coolify.
+
 ## Pendencias para deploy real
 
 - Definir dominio final.
