@@ -7,6 +7,7 @@ x-mailu-env: &mailu-env
   HOSTNAMES: "${MAIL_HOSTNAMES:?Defina o hostname publico, exemplo: mail.example.com}"
   POSTMASTER: "${POSTMASTER:-postmaster}"
   SUBNET: "${MAILU_SUBNET:-192.168.203.0/24}"
+  PORTS: "${PORTS:-25,80,443,110,995,143,993,587,465,4190}"
   TLS_FLAVOR: "${TLS_FLAVOR:-cert}"
   WEBMAIL: "${WEBMAIL:-roundcube}"
   WEB_ADMIN: "${WEB_ADMIN:-/admin}"

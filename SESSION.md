@@ -50,6 +50,11 @@ Criar um projeto para subir um servico de e-mail em uma VPS com Coolify, incluin
 - Adicionado `resolver-mail` em `depends_on` desses servicos.
 - Adicionada rede `clamav` e conectados `antispam-mail` e `antivirus-mail`, mantendo ambos tambem na rede `default` para acessar o resolver interno.
 
+## Correcao SMTP submission em 2026-06-26
+
+- Porta `587` estava publicada no Docker, mas nao entregava banner SMTP/STARTTLS.
+- Adicionada variavel `PORTS=25,80,443,110,995,143,993,587,465,4190`, usada pelo Mailu para ativar listeners internos como submission `587` e submissions `465`.
+
 ## Pendencias para deploy real
 
 - Definir dominio final.
