@@ -35,6 +35,14 @@ Criar um projeto para subir um servico de e-mail em uma VPS com Coolify, incluin
 - Nomes atuais: `front-mail`, `resolver-mail`, `redis-mail`, `admin-mail`, `imap-mail`, `smtp-mail`, `antispam-mail`, `antivirus-mail`, `webmail-mail`, `fetchmail-mail`.
 - Adicionadas variaveis `*_ADDRESS` no Compose e em `.env.example` para que os containers Mailu descubram os novos nomes DNS internos.
 
+## Correcao de deploy em 2026-06-25
+
+- Erro reportado no Coolify: `pull access denied for mailu/rspamd`.
+- Corrigidas imagens Mailu para usar o registry oficial atual da release: `ghcr.io/mailu/*`.
+- Ajustado webmail para `ghcr.io/mailu/webmail:${MAILU_VERSION:-2024.06}`, mantendo `WEBMAIL=roundcube`.
+- Ajustado antivirus para `clamav/clamav-debian:1.4`, conforme template oficial Mailu 2024.06.
+- Volume do antivirus alterado para `./data/clamav:/var/lib/clamav`.
+
 ## Pendencias para deploy real
 
 - Definir dominio final.

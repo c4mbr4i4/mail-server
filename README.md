@@ -6,12 +6,12 @@ Projeto para subir uma stack de e-mail open source no Coolify usando Docker Comp
 
 ## Componentes open source
 
-- Mailu 2024.06: stack principal de e-mail em Docker.
+- Mailu 2024.06: stack principal de e-mail em Docker, usando imagens publicas do GHCR.
 - Postfix: SMTP.
 - Dovecot: IMAP/POP3.
 - Roundcube: webmail.
 - Rspamd: antispam.
-- ClamAV: antivirus.
+- ClamAV: antivirus via imagem `clamav/clamav-debian:1.4`.
 - Redis e Unbound: suporte interno da stack.
 
 ## Pre-requisitos da VPS
@@ -124,6 +124,7 @@ Faca backup de todo o diretorio `./data`, principalmente:
 - `./data/dkim`
 - `./data/certs`
 - `./data/webmail`
+- `./data/clamav`
 
 Antes de atualizar `MAILU_VERSION`, leia as notas da versao do Mailu e faca backup.
 

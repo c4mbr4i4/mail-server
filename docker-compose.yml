@@ -48,7 +48,7 @@ x-logging: &default-logging
 
 services:
   front-mail:
-    image: mailu/nginx:${MAILU_VERSION:-2024.06}
+    image: ghcr.io/mailu/nginx:${MAILU_VERSION:-2024.06}
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
@@ -71,7 +71,7 @@ services:
       - ${RESOLVER_IPV4:-192.168.203.254}
 
   resolver-mail:
-    image: mailu/unbound:${MAILU_VERSION:-2024.06}
+    image: ghcr.io/mailu/unbound:${MAILU_VERSION:-2024.06}
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
@@ -88,7 +88,7 @@ services:
       - ./data/redis:/data
 
   admin-mail:
-    image: mailu/admin:${MAILU_VERSION:-2024.06}
+    image: ghcr.io/mailu/admin:${MAILU_VERSION:-2024.06}
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
@@ -101,7 +101,7 @@ services:
       - ${RESOLVER_IPV4:-192.168.203.254}
 
   imap-mail:
-    image: mailu/dovecot:${MAILU_VERSION:-2024.06}
+    image: ghcr.io/mailu/dovecot:${MAILU_VERSION:-2024.06}
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
@@ -114,7 +114,7 @@ services:
       - ${RESOLVER_IPV4:-192.168.203.254}
 
   smtp-mail:
-    image: mailu/postfix:${MAILU_VERSION:-2024.06}
+    image: ghcr.io/mailu/postfix:${MAILU_VERSION:-2024.06}
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
@@ -127,7 +127,7 @@ services:
       - ${RESOLVER_IPV4:-192.168.203.254}
 
   antispam-mail:
-    image: mailu/rspamd:${MAILU_VERSION:-2024.06}
+    image: ghcr.io/mailu/rspamd:${MAILU_VERSION:-2024.06}
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
@@ -138,21 +138,28 @@ services:
     depends_on:
       - front-mail
       - redis-mail
+      - antivirus-mail
     dns:
       - ${RESOLVER_IPV4:-192.168.203.254}
 
   antivirus-mail:
-    image: mailu/clamav:${MAILU_VERSION:-2024.06}
+    image: clamav/clamav-debian:1.4
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
     volumes:
-      - ./data/filter:/data
+      - ./data/clamav:/var/lib/clamav
+    healthcheck:
+      test: ["CMD-SHELL", "kill -0 `cat /tmp/clamd.pid` && kill -0 `cat /tmp/freshclam.pid`"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     dns:
       - ${RESOLVER_IPV4:-192.168.203.254}
 
   webmail-mail:
-    image: mailu/roundcube:${MAILU_VERSION:-2024.06}
+    image: ghcr.io/mailu/webmail:${MAILU_VERSION:-2024.06}
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
@@ -165,7 +172,7 @@ services:
       - ${RESOLVER_IPV4:-192.168.203.254}
 
   fetchmail-mail:
-    image: mailu/fetchmail:${MAILU_VERSION:-2024.06}
+    image: ghcr.io/mailu/fetchmail:${MAILU_VERSION:-2024.06}
     restart: unless-stopped
     environment: *mailu-env
     logging: *default-logging
