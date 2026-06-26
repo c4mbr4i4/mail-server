@@ -9,6 +9,8 @@ x-mailu-env: &mailu-env
   SUBNET: "${MAILU_SUBNET:-192.168.203.0/24}"
   PORTS: "${PORTS:-25,80,443,110,995,143,993,587,465,4190}"
   TLS_FLAVOR: "${TLS_FLAVOR:-cert}"
+  ADMIN: "${ADMIN:-true}"
+  API: "${API:-false}"
   WEBMAIL: "${WEBMAIL:-roundcube}"
   WEB_ADMIN: "${WEB_ADMIN:-/admin}"
   WEB_WEBMAIL: "${WEB_WEBMAIL:-/webmail}"

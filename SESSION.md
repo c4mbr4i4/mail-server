@@ -55,6 +55,11 @@ Criar um projeto para subir um servico de e-mail em uma VPS com Coolify, incluin
 - Porta `587` estava publicada no Docker, mas nao entregava banner SMTP/STARTTLS.
 - Adicionada variavel `PORTS=25,80,443,110,995,143,993,587,465,4190`, usada pelo Mailu para ativar listeners internos como submission `587` e submissions `465`.
 
+## Correcao admin em 2026-06-26
+
+- Adicionados defaults `ADMIN=true` e `API=false` no compose e no `.env.example`.
+- O painel admin deve ser acessado via `front-mail` em `/admin`; `admin-mail` continua sem dominio publico.
+
 ## Pendencias para deploy real
 
 - Definir dominio final.

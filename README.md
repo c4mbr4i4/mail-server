@@ -37,7 +37,7 @@ Portas publicas expostas diretamente no host:
 
 A interface web roda no container `front-mail` na porta interna `80` e deve ser publicada pelo dominio configurado no Coolify, por exemplo `https://mail.seudominio.com`.
 
-No Coolify, mantenha `PORTS=25,80,443,110,995,143,993,587,465,4190` para que o Mailu habilite os listeners internos correspondentes.
+No Coolify, mantenha `PORTS=25,80,443,110,995,143,993,587,465,4190` para que o Mailu habilite os listeners internos correspondentes. Tambem mantenha `ADMIN=true` para publicar o painel em `/admin`.
 
 ## Passo a passo no Coolify
 
@@ -45,7 +45,7 @@ No Coolify, mantenha `PORTS=25,80,443,110,995,143,993,587,465,4190` para que o M
 2. Crie uma nova aplicacao a partir deste repositorio Git.
 3. Selecione o build/deploy pack `Docker Compose`.
 4. Se o Coolify oferecer `Raw Compose Deployment`, pode usar tambem. Para este caso, mantenha o servico `front-mail` associado ao dominio HTTP.
-5. Configure o dominio do servico `front` como `https://mail.seudominio.com`.
+5. Configure o dominio do servico `front-mail` como `https://mail.seudominio.com`.
 6. Na tela de variaveis de ambiente, preencha todas as variaveis obrigatorias:
    - `MAIL_DOMAIN=seudominio.com`
    - `MAIL_HOSTNAMES=mail.seudominio.com`
@@ -53,6 +53,8 @@ No Coolify, mantenha `PORTS=25,80,443,110,995,143,993,587,465,4190` para que o M
    - `INITIAL_ADMIN_DOMAIN=seudominio.com`
    - `INITIAL_ADMIN_PW=<senha forte>`
    - `SECRET_KEY=<chave aleatoria forte>`
+   - `ADMIN=true`
+   - `API=false`
 7. Mantenha `TLS_FLAVOR=cert` em VPS com Coolify, porque o proxy do Coolify normalmente ja ocupa as portas 80/443 do host.
 8. Antes do primeiro deploy, coloque os certificados TLS em:
    - `./data/certs/cert.pem`
