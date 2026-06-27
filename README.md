@@ -377,6 +377,14 @@ No dominio do Coolify, informe a porta interna:
 https://mail.seudominio.com:80
 ```
 
+Se `curl` no servidor retorna `302`/`200`, mas o navegador continua em timeout, teste com um cache buster:
+
+```text
+https://mail.seudominio.com/admin/?t=20260627
+```
+
+Se funcionar com query string, o problema esta no estado local do navegador ou em cache de protocolo, nao no Mailu. Limpe os dados do site para o dominio, feche abas abertas do webmail/admin e teste novamente em janela anonima. Em Chrome/Edge, tambem pode ajudar limpar o cache HTTP/3/QUIC ou desativar temporariamente QUIC em `chrome://flags/#enable-quic`, especialmente quando a resposta contem `alt-svc: h3`.
+
 ### Webmail em loop em `/webmail/sso.php`
 
 Primeiro teste IMAP direto. Enquanto IMAP nao autenticar, o webmail continuara em loop:

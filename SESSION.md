@@ -107,6 +107,15 @@ Criar um projeto para subir um servico de e-mail em uma VPS com Coolify, incluin
 - Envio e recebimento de e-mails validados.
 - README reescrito como runbook para novos ambientes.
 
+## Gateway Timeout no navegador em 2026-06-27
+
+- Usuario reportou novo Gateway Timeout em `https://mail.dominus-ai.net.br/admin/`.
+- Testes por `curl` no servidor retornaram `302` esperado para `/sso/login` e `200` na tela de login, indicando Mailu, front-mail e proxy respondendo.
+- Logs do `front-mail` confirmaram requests chegando e sendo respondidos.
+- A URL `https://mail.dominus-ai.net.br/admin/?t=20260627` funcionou no navegador.
+- Conclusao: problema de estado/cache do navegador, possivelmente relacionado a redirects antigos ou cache HTTP/3/QUIC indicado pelo header `alt-svc: h3`.
+- Documentado no README o uso de cache buster, limpeza de dados do site e teste/desativacao temporaria de QUIC.
+
 ## Pendencias recorrentes para novos ambientes
 
 - Definir dominio final.
