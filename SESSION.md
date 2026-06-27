@@ -92,6 +92,10 @@ Criar um projeto para subir um servico de e-mail em uma VPS com Coolify, incluin
 - `SECRET_KEY` foi confirmado igual entre `admin-mail`, `imap-mail` e `front-mail`.
 - Como o loop do webmail gerou muitas tentativas, o limitador `AUTH_RATELIMIT_USER=50/day` pode estar mantendo a recusa mesmo apos reset de senha.
 - Adicionada variavel `AUTH_RATELIMIT_EXEMPTION` ao compose para permitir isentar redes internas/clientes durante diagnostico.
+- Teste direto em `/internal/auth/email` retornou `Auth-Status: OK`, confirmando que senha e admin backend estavam corretos.
+- O backend retornou `Auth-Server: 10.0.2.9`, IP da rede adicional do Coolify, enquanto o Dovecot confia apenas em `MAILU_SUBNET=192.168.203.0/24`.
+- Causa raiz provavel: nomes como `imap-mail` resolvendo pela rede do Coolify em vez da rede interna Mailu, fazendo o proxy IMAP chegar de uma subnet nao confiavel.
+- Ajuste aplicado: aliases internos `*-mail-internal` na rede default do Compose e defaults `*_ADDRESS` apontando para esses aliases.
 
 ## Pendencias para deploy real
 

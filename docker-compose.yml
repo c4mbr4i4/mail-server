@@ -37,14 +37,14 @@ x-mailu-env: &mailu-env
   LOG_LEVEL: "${LOG_LEVEL:-WARNING}"
   ANTIVIRUS: "${ANTIVIRUS:-clamav}"
   WEBDAV: "${WEBDAV:-none}"
-  ADMIN_ADDRESS: "${ADMIN_ADDRESS:-admin-mail}"
-  ANTISPAM_ADDRESS: "${ANTISPAM_ADDRESS:-antispam-mail}"
-  ANTIVIRUS_ADDRESS: "${ANTIVIRUS_ADDRESS:-antivirus-mail}"
-  FRONT_ADDRESS: "${FRONT_ADDRESS:-front-mail}"
-  IMAP_ADDRESS: "${IMAP_ADDRESS:-imap-mail}"
-  REDIS_ADDRESS: "${REDIS_ADDRESS:-redis-mail}"
-  SMTP_ADDRESS: "${SMTP_ADDRESS:-smtp-mail}"
-  WEBMAIL_ADDRESS: "${WEBMAIL_ADDRESS:-webmail-mail}"
+  ADMIN_ADDRESS: "${ADMIN_ADDRESS:-admin-mail-internal}"
+  ANTISPAM_ADDRESS: "${ANTISPAM_ADDRESS:-antispam-mail-internal}"
+  ANTIVIRUS_ADDRESS: "${ANTIVIRUS_ADDRESS:-antivirus-mail-internal}"
+  FRONT_ADDRESS: "${FRONT_ADDRESS:-front-mail-internal}"
+  IMAP_ADDRESS: "${IMAP_ADDRESS:-imap-mail-internal}"
+  REDIS_ADDRESS: "${REDIS_ADDRESS:-redis-mail-internal}"
+  SMTP_ADDRESS: "${SMTP_ADDRESS:-smtp-mail-internal}"
+  WEBMAIL_ADDRESS: "${WEBMAIL_ADDRESS:-webmail-mail-internal}"
 
 x-logging: &default-logging
   driver: json-file
@@ -79,7 +79,9 @@ services:
     depends_on:
       - resolver-mail
     networks:
-      - default
+      default:
+        aliases:
+          - front-mail-internal
 
   resolver-mail:
     image: ghcr.io/mailu/unbound:${MAILU_VERSION:-2024.06}
@@ -89,6 +91,8 @@ services:
     networks:
       default:
         ipv4_address: ${RESOLVER_IPV4:-192.168.203.254}
+        aliases:
+          - resolver-mail-internal
 
   redis-mail:
     image: redis:7-alpine
@@ -97,6 +101,10 @@ services:
     logging: *default-logging
     volumes:
       - ./data/redis:/data
+    networks:
+      default:
+        aliases:
+          - redis-mail-internal
 
   admin-mail:
     image: ghcr.io/mailu/admin:${MAILU_VERSION:-2024.06}
@@ -111,7 +119,9 @@ services:
       - resolver-mail
       - redis-mail
     networks:
-      - default
+      default:
+        aliases:
+          - admin-mail-internal
 
   imap-mail:
     image: ghcr.io/mailu/dovecot:${MAILU_VERSION:-2024.06}
@@ -126,7 +136,9 @@ services:
       - resolver-mail
       - front-mail
     networks:
-      - default
+      default:
+        aliases:
+          - imap-mail-internal
 
   smtp-mail:
     image: ghcr.io/mailu/postfix:${MAILU_VERSION:-2024.06}
@@ -141,7 +153,9 @@ services:
       - resolver-mail
       - front-mail
     networks:
-      - default
+      default:
+        aliases:
+          - smtp-mail-internal
 
   antispam-mail:
     image: ghcr.io/mailu/rspamd:${MAILU_VERSION:-2024.06}
@@ -159,8 +173,10 @@ services:
       - redis-mail
       - antivirus-mail
     networks:
-      - default
-      - clamav
+      default:
+        aliases:
+          - antispam-mail-internal
+      clamav:
 
   antivirus-mail:
     image: clamav/clamav-debian:1.4
@@ -179,8 +195,10 @@ services:
     depends_on:
       - resolver-mail
     networks:
-      - default
-      - clamav
+      default:
+        aliases:
+          - antivirus-mail-internal
+      clamav:
 
   webmail-mail:
     image: ghcr.io/mailu/webmail:${MAILU_VERSION:-2024.06}
@@ -195,7 +213,9 @@ services:
       - resolver-mail
       - imap-mail
     networks:
-      - default
+      default:
+        aliases:
+          - webmail-mail-internal
 
   fetchmail-mail:
     image: ghcr.io/mailu/fetchmail:${MAILU_VERSION:-2024.06}
@@ -209,7 +229,9 @@ services:
       - smtp-mail
       - imap-mail
     networks:
-      - default
+      default:
+        aliases:
+          - fetchmail-mail-internal
 
 networks:
   default:

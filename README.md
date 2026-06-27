@@ -40,6 +40,8 @@ A interface web roda no container `front-mail` na porta interna `80` e deve ser 
 No Coolify, mantenha `PORTS=25,80,443,110,995,143,993,587,465,4190` para que o Mailu habilite os listeners internos correspondentes. Tambem mantenha `ADMIN=true` para publicar o painel em `/admin`.
 Como o `front-mail` publica varias portas de e-mail, informe explicitamente a porta interna HTTP no dominio do Coolify: `https://mail.seudominio.com:80`.
 
+Os `*_ADDRESS` devem usar os aliases `*-mail-internal`, nao os nomes dos servicos. O Coolify pode anexar os containers a uma rede propria alem da rede default do Compose; usando aliases exclusivos da rede Mailu, os servicos internos resolvem para a subnet configurada em `MAILU_SUBNET`.
+
 ## Passo a passo no Coolify
 
 1. Crie um novo projeto no Coolify.
@@ -56,6 +58,12 @@ Como o `front-mail` publica varias portas de e-mail, informe explicitamente a po
    - `SECRET_KEY=<chave aleatoria forte>`
    - `ADMIN=true`
    - `API=false`
+   - `ADMIN_ADDRESS=admin-mail-internal`
+   - `FRONT_ADDRESS=front-mail-internal`
+   - `IMAP_ADDRESS=imap-mail-internal`
+   - `SMTP_ADDRESS=smtp-mail-internal`
+   - `REDIS_ADDRESS=redis-mail-internal`
+   - `WEBMAIL_ADDRESS=webmail-mail-internal`
 7. Mantenha `TLS_FLAVOR=mail` em VPS com Coolify. Assim a web usa HTTP interno atras do proxy do Coolify, enquanto SMTP/IMAP continuam usando os certificados em `./data/certs`.
 8. Mantenha `REAL_IP_HEADER=X-Forwarded-For` e `REAL_IP_FROM=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16` para o Mailu confiar nos headers do proxy do Coolify.
 9. Antes do primeiro deploy, coloque os certificados TLS em:
