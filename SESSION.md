@@ -13,7 +13,7 @@ Criar um projeto para subir um servico de e-mail em uma VPS com Coolify, incluin
 - Deploy recomendado no Coolify: Docker Compose/Raw Compose.
 - O `Dockerfile` foi mantido apenas como auxiliar/documentacao, porque um servidor de e-mail completo e multi-servico nao deve ser colocado em um unico container.
 - Como Coolify geralmente ocupa `80/443`, a web do Mailu deve ser publicada pelo proxy do Coolify e as portas de e-mail devem ser expostas diretamente pelo compose.
-- TLS de producao: `TLS_FLAVOR=cert`, com `cert.pem` e `key.pem` em `./data/certs`.
+- TLS de producao atras do Coolify: `TLS_FLAVOR=mail`, com `cert.pem` e `key.pem` em `./data/certs` para SMTP/IMAP e web HTTP interna atras do proxy HTTPS do Coolify.
 
 ## Arquivos criados
 
@@ -97,7 +97,17 @@ Criar um projeto para subir um servico de e-mail em uma VPS com Coolify, incluin
 - Causa raiz provavel: nomes como `imap-mail` resolvendo pela rede do Coolify em vez da rede interna Mailu, fazendo o proxy IMAP chegar de uma subnet nao confiavel.
 - Ajuste aplicado: aliases internos `*-mail-internal` na rede default do Compose e defaults `*_ADDRESS` apontando para esses aliases.
 
-## Pendencias para deploy real
+## Validacao final em 2026-06-27
+
+- Aliases internos passaram a resolver para `192.168.203.x`.
+- `/internal/auth/email` passou a retornar `Auth-Server: 192.168.203.x`.
+- Webmail funcionou.
+- Usuario conseguiu alterar senha no primeiro login.
+- Criacao de novo usuario validada.
+- Envio e recebimento de e-mails validados.
+- README reescrito como runbook para novos ambientes.
+
+## Pendencias recorrentes para novos ambientes
 
 - Definir dominio final.
 - Confirmar IP publico da VPS.
@@ -111,4 +121,4 @@ Criar um projeto para subir um servico de e-mail em uma VPS com Coolify, incluin
 
 ## Proximo passo sugerido
 
-Adaptar os exemplos de dominio (`example.com`/`mail.example.com`) para o dominio real e validar o compose no servidor Coolify.
+Para novos ambientes, seguir o checklist do `README.md`, validar aliases internos `*-mail-internal` e testar IMAP/SMTP antes de liberar usuarios finais.
