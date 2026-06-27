@@ -86,6 +86,13 @@ Criar um projeto para subir um servico de e-mail em uma VPS com Coolify, incluin
 - Causa provavel: `INITIAL_ADMIN_MODE=ifmissing` nao atualiza senha de usuario ja existente; se `INITIAL_ADMIN_PW` mudou apos o primeiro deploy, a senha real do usuario permanece a antiga.
 - Correcao: redefinir a senha do usuario no painel admin ou executar `flask mailu password admin dominus-ai.net.br 'NOVA_SENHA_FORTE'` no container `admin-mail`.
 
+## Diagnostico auth IMAP em 2026-06-27
+
+- `doveadm auth test` dentro do `imap-mail` falhou para usuarios ativos com IMAP habilitado.
+- `SECRET_KEY` foi confirmado igual entre `admin-mail`, `imap-mail` e `front-mail`.
+- Como o loop do webmail gerou muitas tentativas, o limitador `AUTH_RATELIMIT_USER=50/day` pode estar mantendo a recusa mesmo apos reset de senha.
+- Adicionada variavel `AUTH_RATELIMIT_EXEMPTION` ao compose para permitir isentar redes internas/clientes durante diagnostico.
+
 ## Pendencias para deploy real
 
 - Definir dominio final.

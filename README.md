@@ -134,6 +134,8 @@ docker exec "$ADMIN" flask mailu password admin dominus-ai.net.br 'NOVA_SENHA_FO
 
 Para usuarios finais, prefira criar caixas postais proprias no painel admin e acessar o webmail com `usuario@seudominio.com`.
 
+Se o loop gerou muitas tentativas de login, o proprio limitador do Mailu pode continuar recusando usuarios mesmo apos corrigir a senha. Para diagnostico temporario, configure `AUTH_RATELIMIT_EXEMPTION=10.0.0.0/8,192.168.0.0/16,172.16.0.0/12,IP_DO_SEU_CLIENTE/32`, faca redeploy e teste o IMAP novamente. Nao use `0.0.0.0/0` permanentemente em producao.
+
 ## Operacao e backup
 
 Faca backup de todo o diretorio `./data`, principalmente:
